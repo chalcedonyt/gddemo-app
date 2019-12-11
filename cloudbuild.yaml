@@ -1,0 +1,21 @@
+substitutions:
+  _APP_IMAGE: gdgdemo-app
+
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Docker'
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    docker build -t ${_APP_IMAGE}:${SHORT_SHA} \
+      --build-arg COMMIT=${SHORT_SHA} \
+      . && \
+    #tag to both registry/image:sha and registry/image:latest
+    docker tag ${_APP_IMAGE}:${SHORT_SHA} \
+      asia.gcr.io/$PROJECT_ID/${_APP_IMAGE}:${SHORT_SHA} && \
+    docker tag ${_APP_IMAGE}:${SHORT_SHA} \
+      asia.gcr.io/$PROJECT_ID/${_APP_IMAGE}:latest && \
+
+    docker push asia.gcr.io/$PROJECT_ID/${_APP_IMAGE}:${SHORT_SHA} && \
+    docker push asia.gcr.io/$PROJECT_ID/${_APP_IMAGE}:latest
