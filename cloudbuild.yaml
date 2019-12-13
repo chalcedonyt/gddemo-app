@@ -4,7 +4,7 @@ substitutions:
   _GKE_ZONE: asia-southeast1-a
   _GKE_CLUSTER: gdgkl-demo
   _KUSTOMIZE_OVERLAY: prod
-  
+
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Docker'
@@ -51,7 +51,7 @@ steps:
   - |
     cd /workspace/k8s-repo && \
     gcloud container clusters get-credentials ${_GKE_CLUSTER} && \
-    kustomize build "overlays/${_KUSTOMIZE_OVERLAY}/kustomization.yml" | kubectl apply -f - && \
+    kustomize build "overlays/${_KUSTOMIZE_OVERLAY}" | kubectl apply -f - && \
     kubectl rollout status deploy/${_APP_NAME} --timeout=300s
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=${_GKE_ZONE}'
