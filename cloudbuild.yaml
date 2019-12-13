@@ -4,6 +4,7 @@ substitutions:
   _GKE_ZONE: asia-southeast1-a
   _GKE_CLUSTER: gdgkl-demo
   _KUSTOMIZE_OVERLAY: prod
+  
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Docker'
