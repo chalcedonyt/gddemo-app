@@ -1,5 +1,4 @@
 const Task = require('../models/task');
-
 const sortTask = (a,b) => {
   const taskA = a.task.toLowerCase();
   const taskB = b.task.toLowerCase();
@@ -22,6 +21,10 @@ module.exports = {
     .create(req.body)
     .then(result => {
       // result.sort(sortTask)
+      console.log(JSON.stringify({
+        message: `Inserted a log entry ${JSON.stringify(req.body)}`,
+        level: 'info'
+      }))
       res.json(result)
     })
     .catch(err => res.json(err));
@@ -44,7 +47,13 @@ module.exports = {
   deleteOne: function (req,res){
     Task
     .remove({_id: req.params.id})
-    .then(result => res.json(result))
+    .then(result => {
+      console.log(JSON.stringify({
+        message: `Deleted the log entry ${req.params.id}}`,
+        level: 'error'
+      }))
+      return res.json(result)
+    })
     .catch(err => res.json(err))
   },
 
