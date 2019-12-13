@@ -38,7 +38,7 @@ steps:
     sed -e "s/APP_TAG/${SHORT_SHA}/g" overlays/${_KUSTOMIZE_OVERLAY}/kustomization.yml.tpl > overlays/${_KUSTOMIZE_OVERLAY}/kustomization.yml && \
     git add . && \
     git commit -m "Auto update for ${SHORT_SHA}" && \
-    git push --set-upstream origin release/${SHORT_SHA}
+    git push --force --set-upstream origin release/${SHORT_SHA}
   volumes:
   - name: k8s-repo
     path: /workspace/k8s-repo
