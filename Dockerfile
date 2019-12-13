@@ -23,6 +23,6 @@ RUN npm install --unsafe-perm || \
     fi) && false)
 ENV NODE_PORT 8080
 EXPOSE 8080
-RUN mkdir -p public && echo "${COMMIT}" > public/VERSION.txt
+RUN mkdir -p static && echo "${COMMIT}" > static/VERSION.txt
 RUN echo "Wrote VERSION.txt -> ${COMMIT}"
 CMD npm start
