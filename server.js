@@ -32,7 +32,7 @@ app.set('view engine', 'handlebars');
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
 
 //setting up static path for serving static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {maxAge: "30d"}));
 
 //Bringing in the routes
 const index = require('./routes/index');
