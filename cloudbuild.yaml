@@ -58,3 +58,18 @@ steps:
   volumes:
   - name: k8s-repo
     path: /workspace/k8s-repo
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'Merge the release into trunk'
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    cd /workspace/k8s-repo && \
+    git checkout release/${SHORT_SHA} && \
+    git checkout develop && \
+    git merge --no-ff release/${SHORT_SHA} && \
+    git push
+  volumes:
+  - name: k8s-repo
+    path: /workspace/k8s-repo
