@@ -23,6 +23,7 @@ module.exports = {
       // result.sort(sortTask)
       console.log(JSON.stringify({
         message: `Inserted a log entry ${JSON.stringify(req.body)}`,
+        labels: { module: 'create' },
         level: 'info'
       }))
       res.json(result)
@@ -50,6 +51,7 @@ module.exports = {
     .then(result => {
       console.log(JSON.stringify({
         message: `Deleted the log entry ${req.params.id}}`,
+        labels: { module: 'delete' },
         level: 'error'
       }))
       return res.json(result)
