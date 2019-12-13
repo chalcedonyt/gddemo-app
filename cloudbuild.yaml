@@ -42,7 +42,7 @@ steps:
   - name: k8s-repo
     path: /workspace/k8s-repo
 
-- name: 'gcr.io/$PROJECT_ID/kustomize'
+- name: 'asia.gcr.io/$PROJECT_ID/kustomize'
   id: 'Update GKE deployment'
   entrypoint: /bin/sh
   args:
