@@ -1,6 +1,9 @@
 substitutions:
-  _APP_IMAGE: gdgdemo-app
-
+  _APP_NAME: gdgdemo-app
+  _K8S_REPO: gdgdemo-k8s
+  _GKE_ZONE: asia-southeast-1a
+  _GKE_CLUSTER: gdgkl-demo
+  _KUSTOMIZE_OVERLAY: prod
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Docker'
@@ -8,14 +11,50 @@ steps:
   args:
   - '-c'
   - |
-    docker build -t ${_APP_IMAGE}:${SHORT_SHA} \
+    docker build -t ${_APP_NAME}:${SHORT_SHA} \
       --build-arg COMMIT=${SHORT_SHA} \
       . && \
     #tag to both registry/image:sha and registry/image:latest
-    docker tag ${_APP_IMAGE}:${SHORT_SHA} \
-      asia.gcr.io/$PROJECT_ID/${_APP_IMAGE}:${SHORT_SHA} && \
-    docker tag ${_APP_IMAGE}:${SHORT_SHA} \
-      asia.gcr.io/$PROJECT_ID/${_APP_IMAGE}:latest && \
+    docker tag ${_APP_NAME}:${SHORT_SHA} \
+      asia.gcr.io/$PROJECT_ID/${_APP_NAME}:${SHORT_SHA} && \
+    docker tag ${_APP_NAME}:${SHORT_SHA} \
+      asia.gcr.io/$PROJECT_ID/${_APP_NAME}:latest && \
 
-    docker push asia.gcr.io/$PROJECT_ID/${_APP_IMAGE}:${SHORT_SHA} && \
-    docker push asia.gcr.io/$PROJECT_ID/${_APP_IMAGE}:latest
+    docker push asia.gcr.io/$PROJECT_ID/${_APP_NAME}:${SHORT_SHA} && \
+    docker push asia.gcr.io/$PROJECT_ID/${_APP_NAME}:latest
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'Create a new branch for the release'
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    gcloud source repos clone ${_K8S_REPO} /workspace/k8s-repo && \
+    cd /workspace/k8s-repo && \
+    git config user.email $(gcloud auth list --filter=status:ACTIVE --format='value(account)') && \
+    git checkout develop && \
+    git checkout -b release/${SHORT_SHA} && \
+    sed -e "s/APP_TAG/${SHORT_SHA}/g" overlays/${_KUSTOMIZE_OVERLAY}/kustomization.yml.tpl > overlays/${_KUSTOMIZE_OVERLAY}/kustomization.yml && \
+    git add . && \
+    git commit -m "Auto update for ${SHORT_SHA}" && \
+    git push --set-upstream origin release/${SHORT_SHA}
+  volumes:
+  - name: k8s-repo
+    path: /workspace/k8s-repo
+
+- name: 'gcr.io/$PROJECT_ID/kustomize'
+  id: 'Update GKE deployment'
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    cd /workspace/k8s-repo && \
+    gcloud container clusters get-credentials ${_GKE_CLUSTER} && \
+    kustomize build "overlays/${_KUSTOMIZE_OVERLAY}/kustomization.yml" | kubectl apply -f - && \
+    kubectl rollout status deploy/${_APP_NAME} --timeout=300s
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=${_GKE_ZONE}'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=${_GKE_CLUSTER}'
+  volumes:
+  - name: k8s-repo
+    path: /workspace/k8s-repo
