@@ -1,7 +1,7 @@
 substitutions:
   _APP_NAME: gdgdemo-app
   _K8S_REPO: gdgdemo-k8s
-  _GKE_ZONE: asia-southeast-1a
+  _GKE_ZONE: asia-southeast1-a
   _GKE_CLUSTER: gdgkl-demo
   _KUSTOMIZE_OVERLAY: prod
 steps:
