@@ -30,7 +30,7 @@ steps:
   - '-c'
   - |
     gcloud container clusters get-credentials ${_GKE_CLUSTER} && \
-    kubectl set image deploy/${_KUSTOMIZE_OVERLAY}-gdg-app {_APP_NAME}={_APP_NAME}:${SHORT_SHA} \
+    kubectl set image deploy/${_KUSTOMIZE_OVERLAY}-gdg-app gdg-app=asia.gcr.io/$PROJECT_ID/${_APP_NAME}:${SHORT_SHA} \
       --namespace=${_KUSTOMIZE_OVERLAY} && \
     kubectl rollout status deploy/${_KUSTOMIZE_OVERLAY}-gdg-app \
       --namespace=${_KUSTOMIZE_OVERLAY} \
