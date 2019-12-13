@@ -18,7 +18,7 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 //setting up morgan middleware
-app.use(logger('dev'));
+// app.use(logger('dev'));
 
 //setting up body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }))
