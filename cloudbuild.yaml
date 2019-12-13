@@ -43,6 +43,22 @@ steps:
   - name: k8s-repo
     path: /workspace/k8s-repo
 
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'Perform credential decryption'
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    cd /workspace/k8s-repo && \
+    gcloud kms decrypt --plaintext-file=overlays/${_KUSTOMIZE_OVERLAY}/secrets/secrets.env \
+      --ciphertext-file=overlays/${_KUSTOMIZE_OVERLAY}/secrets/secrets.env.enc \
+      --keyring=gdg-demo-keyring \
+      --key=gdg-demo-key \
+      --location=global
+  volumes:
+  - name: k8s-repo
+    path: /workspace/k8s-repo
+
 - name: 'asia.gcr.io/$PROJECT_ID/kustomize'
   id: 'Update GKE deployment'
   entrypoint: /bin/sh
@@ -52,7 +68,9 @@ steps:
     cd /workspace/k8s-repo && \
     gcloud container clusters get-credentials ${_GKE_CLUSTER} && \
     kustomize build "overlays/${_KUSTOMIZE_OVERLAY}" | kubectl apply -f - && \
-    kubectl rollout status deploy/${_APP_NAME} --timeout=300s
+    kubectl rollout status deploy/${_KUSTOMIZE_OVERLAY}-gdg-app \
+      --namespace=${_KUSTOMIZE_OVERLAY} \
+      --timeout=300s
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=${_GKE_ZONE}'
   - 'CLOUDSDK_CONTAINER_CLUSTER=${_GKE_CLUSTER}'
