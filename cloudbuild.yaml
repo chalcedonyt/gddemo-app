@@ -68,7 +68,8 @@ steps:
     cd /workspace/k8s-repo && \
     gcloud container clusters get-credentials ${_GKE_CLUSTER} && \
     cat "overlays/${_KUSTOMIZE_OVERLAY}/kustomization.yml" && \
-    kustomize build "overlays/${_KUSTOMIZE_OVERLAY}" | kubectl apply -f - && \
+    kustomize build "overlays/${_KUSTOMIZE_OVERLAY}" | \
+      kubectl apply --namespace=${_KUSTOMIZE_OVERLAY} -f - && \
     kubectl rollout status deploy/${_KUSTOMIZE_OVERLAY}-gdg-app \
       --namespace=${_KUSTOMIZE_OVERLAY} \
       --timeout=300s
